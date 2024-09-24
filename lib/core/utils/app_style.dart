@@ -15,6 +15,12 @@ class AppStyle {
       fontWeight: FontWeight.normal,
       fontFamily: 'Inter'
   );
+  static const TextStyle styleBold16 = TextStyle(
+    color: AppColors.blue,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    fontFamily: 'Inter'
+  );
   static const TextStyle styleBold20 = TextStyle(
     color: AppColors.blue,
     fontSize: 20,

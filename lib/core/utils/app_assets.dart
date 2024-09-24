@@ -7,4 +7,6 @@ class AppAssets {
   static const String food3 = AppString.imgFood3;
   static const String food4 = AppString.imgFood4;
   static const String food5 = AppString.imgFood5;
+  static const String burger = AppString.imgBurger;
+  static const String coffee = AppString.imgCoffee;
 }
