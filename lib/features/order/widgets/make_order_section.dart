@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_order/core/utils/app_colors.dart';
 import 'package:task_order/core/utils/app_style.dart';
+import 'package:task_order/core/widgets/custom_button_widget.dart';
+import 'package:task_order/core/widgets/dailog_widget.dart';
 import 'package:task_order/core/widgets/text_form_widget.dart';
 import 'package:task_order/features/order/provider/customer_provider.dart';
 import 'package:task_order/features/order/provider/products_provider.dart';
@@ -37,12 +39,12 @@ class MakeOrderSection extends StatelessWidget {
     );
   }
 
-  Widget orderInfoWidget(
-      BuildContext context, CustomerProvider customerProvider, GlobalKey<FormState>  formKey) {
+  Widget orderInfoWidget(BuildContext context,
+      CustomerProvider customerProvider, GlobalKey<FormState> formKey) {
     return Container(
       color: AppColors.grey,
       height: height * 0.3,
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,77 +57,33 @@ class MakeOrderSection extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialog(
-                            backgroundColor: AppColors.white.withOpacity(0.8),
-                            title: const Text('Add Customer'),
-                            content: Form(
-                                key: formKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  TextFormFieldWidget(
-                                    labelText: 'Name',
-                                    controller: nameController,
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Name is required';
-                                      }
-                                      return null;
-                                    },
-                                    keyboardType: TextInputType.text,
-                                  ),
-                                  TextFormFieldWidget(
-                                    labelText: 'Phone',
-                                    controller: phoneController,
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Phone number is required';
-                                      }
-                                      return null;
-                                    },
-                                    keyboardType: TextInputType.phone,
-                                  ),
-                                  TextFormFieldWidget(
-                                    labelText: 'Address',
-                                    controller: addressController,
-                                    validator: (String? value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Address is required';
-                                      }
-                                      return null;
-                                    },
-                                    keyboardType: TextInputType.text,
-                                  ),
-                                ],
-                              ),
+                          return DialogWidget(
+                            nameController: nameController,
+                            phoneController: phoneController,
+                            addressController: addressController,
+                            formKey: formKey,
+                            customerProvider: customerProvider,
+                            customButton: CustomButton(
+                              buttonName: 'Add Customer',
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  customerProvider.makeId();
+
+                                  final customer = CustomerModel(
+                                    name: nameController.text,
+                                    phone: phoneController.text,
+                                    address: addressController.text,
+                                    id: customerProvider.newCustomerId
+                                        .toString(),
+                                  );
+
+                                  customerProvider.addCustomer(customer);
+                                  customerProvider.customerModel = customer;
+
+                                  Navigator.of(context).pop();
+                                }
+                              },
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    final customer = CustomerModel(
-                                      name: nameController.text,
-                                      phone: phoneController.text,
-                                      address: addressController.text,
-                                    );
-
-                                    // Add customer to the provider
-                                    Provider.of<CustomerProvider>(context, listen: false)
-                                        .addCustomer(customer);
-                                    Provider.of<CustomerProvider>(context, listen: false)
-                                        .customerModel = customer;
-
-                                    Navigator.of(context).pop(); // Close the dialog after adding
-                                  }
-                                },
-                                child: const Text('Submit'),
-                              ),
-                            ],
                           );
                         },
                       );
@@ -149,6 +107,51 @@ class MakeOrderSection extends StatelessWidget {
                           'Customer Phone: ${customerProvider.customerModel!.phone}'),
                       Text(
                           'Customer Address: ${customerProvider.customerModel!.address}'),
+                      SizedBox(width: height * .2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          /// Edit customer
+                          Expanded(
+                              child: CustomButton(
+                                  buttonName: 'Edit',
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return DialogWidget(
+                                          nameController: nameController,
+                                          phoneController: phoneController,
+                                          addressController: addressController,
+                                          formKey: formKey,
+                                          customerProvider: customerProvider,
+                                          customButton: CustomButton(
+                                            buttonName: 'Edit Customer',
+                                            onPressed: () {
+                                              final updatedCustomer = CustomerModel(
+                                                id: customerProvider.customerModel!.id,
+                                                name: nameController.text,
+                                                phone: phoneController.text,
+                                                address: addressController.text,
+                                              );
+                                              customerProvider.editCustomer(updatedCustomer);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    );
+
+                                  })),
+                          SizedBox(width: width * .1),
+                          /// Delete customer
+                          Expanded(
+                              child: CustomButton(
+                                  buttonName: 'Delete', onPressed: () {
+                                    customerProvider.deleteCustomer(customerProvider.customerModel!.id);
+                              })),
+                        ],
+                      )
                     ],
                   ),
           ),
@@ -157,15 +160,9 @@ class MakeOrderSection extends StatelessWidget {
           ),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: CustomButton(
+              buttonName: 'Make Order',
               onPressed: () {},
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(AppColors.main),
-              ),
-              child: const Text(
-                "Make Order",
-                style: AppStyle.styleBold16,
-              ),
             ),
           ),
         ],
