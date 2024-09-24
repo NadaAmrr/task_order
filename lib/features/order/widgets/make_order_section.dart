@@ -4,7 +4,6 @@ import 'package:task_order/core/utils/app_colors.dart';
 import 'package:task_order/core/utils/app_style.dart';
 import 'package:task_order/core/widgets/custom_button_widget.dart';
 import 'package:task_order/core/widgets/dailog_widget.dart';
-import 'package:task_order/core/widgets/text_form_widget.dart';
 import 'package:task_order/features/order/provider/customer_provider.dart';
 import 'package:task_order/features/order/provider/order_provider.dart';
 import 'package:task_order/features/order/provider/products_provider.dart';
@@ -22,8 +21,8 @@ class MakeOrderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ordersProvider = Provider.of<OrdersProvider>(context);
-    final products =
-        Provider.of<ProductsProvider>(context).getProductsByGroupId(101);
+    // final products =
+    //     Provider.of<ProductsProvider>(context).getProductsByGroupId(101);
     var customerProvider = Provider.of<CustomerProvider>(context);
     final formKey = GlobalKey<FormState>();
     return Container(
@@ -34,7 +33,7 @@ class MakeOrderSection extends StatelessWidget {
           SizedBox(
             height: height * 0.05,
           ),
-          ordersProvider.orders.isNotEmpty ? orderWidget(ordersProvider.orders) : SizedBox(),
+          ordersProvider.orders.isNotEmpty ? orderWidget(ordersProvider.orders) : Expanded(child: SizedBox()),
 
           // orderWidget(products),
           orderInfoWidget(context, customerProvider, formKey),
