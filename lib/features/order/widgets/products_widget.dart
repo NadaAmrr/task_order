@@ -32,19 +32,13 @@ class ProductsWidget extends StatelessWidget {
                 final product = productProvider.products[index];
                 return InkWell(
                   onTap: () {
-                    orderProvider.addToOrder(product); // Debug statement
+                    orderProvider.addToOrder(product); 
                   },
                   child: Card(
                     color: AppColors.grey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Expanded(
-                        //   child: FittedBox(
-                        //     fit: BoxFit.contain,
-                        //     child: Image.asset(product.img),
-                        //   ),
-                        // ),
                         Image.asset(product.img),
                         Text(
                           product.name,
